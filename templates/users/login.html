@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Вход в систему</h2>
+  {% if form.errors %}
+    <div class="alert alert-danger" role="alert">
+      <strong>Ошибка входа:</strong> Пожалуйста, проверьте логин и пароль.
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </form>
+
+  <p class="mt-3">Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a></p>
+</div>
+{% endblock %}

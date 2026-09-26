@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h1>Профиль</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field in form %}
+                {{ field.errors }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.username.id_for_label }}">Имя пользователя</label>
+        {{ form.username }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.phone.id_for_label }}">Телефон</label>
+        {{ form.phone }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Аватар</label>
+        <div class="d-flex align-items-start gap-3">
+            {% if form.instance.avatar %}
+                <img src="{{ form.instance.avatar.url }}" alt="Аватар"
+                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #eee;">
+            {% else %}
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                    Нет фото
+                </div>
+            {% endif %}
+
+            <div>
+                {{ form.avatar }}
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}

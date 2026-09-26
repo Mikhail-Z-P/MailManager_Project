@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
-
+from . import views
+from django.contrib.auth.views import LoginView
 from users.views import (
     EmailVerifyView,
     ProfileView,
@@ -12,10 +13,10 @@ from users.views import (
 app_name = "users"
 
 urlpatterns = [
-    path("register/", RegisterView.as_view(), name="register"),
-    path("login/", UserLoginView.as_view(), name="login"),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path("logout/", UserLogoutView.as_view(), name="logout"),
-    path("profile/", ProfileView.as_view(), name="profile"),
+    path("profile/", views.ProfileView.as_view(), name="profile"),
     path("verify/<uidb64>/<token>/", EmailVerifyView.as_view(), name="verify"),
     path(
         "password-reset/",

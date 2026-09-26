@@ -7,7 +7,7 @@ from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, UpdateView
-
+from django.contrib.messages.views import SuccessMessageMixin
 from users.forms import UserRegisterForm, UserUpdateForm
 from users.models import User
 from users.tokens import email_verification_token
@@ -48,12 +48,22 @@ class EmailVerifyView(View):
         return redirect("home")
 
 
-class ProfileView(LoginRequiredMixin, UpdateView):
+class ProfileView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """Редактирование профиля пользователя."""
     model = User
     form_class = UserUpdateForm
     template_name = "users/profile.html"
     success_url = reverse_lazy("users:profile")
+    success_message = "Профиль успешно обновлён!"
 
     def get_object(self, queryset=None):
+        """Возвращает текущего авторизованного пользователя."""
         return self.request.user
+
+    def form_valid(self, form):
+        """Обрабатывает сохранение формы и очистку аватара."""
+        if self.request.POST.get("_clear_avatar"):
+            if form.instance.avatar:
+                form.instance.avatar.delete(save=False)
+            form.instance.avatar = None
+        return super().form_valid(form)
