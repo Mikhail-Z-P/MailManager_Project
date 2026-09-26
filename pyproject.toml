@@ -1,0 +1,26 @@
+[project]
+name = "mailmanager-project"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "django (>=6.1.1,<7.0.0)",
+    "pillow (>=12.3.0,<13.0.0)",
+    "django-crispy-forms (>=2.7,<3.0)",
+    "crispy-bootstrap4 (>=2026.2,<2027.0)",
+    "psycopg2-binary (>=2.9.13,<3.0.0)",
+    "python-dotenv (>=1.2.3,<2.0.0)",
+    "django-redis (>=7.0.0,<8.0.0)",
+    "redis (>=8.1.0,<9.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
