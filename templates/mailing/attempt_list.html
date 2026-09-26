@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Попытки{% endblock %}
+
+{% block content %}
+<h1>Попытки отправки</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Время</th>
+            <th>Рассылка</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in attempts %}
+        <tr>
+            <td>{{ a.attempt_time|date:"d.m.Y H:i" }}</td>
+            <td>#{{ a.mailing.pk }}</td>
+            <td>{{ a.status }}</td>
+            <td>{{ a.server_response|truncatechars:80 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Попыток нет</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-outline-primary">Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-primary">Назад</a>
+    {% endif %}
+    <span class="mx-2">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-primary">Далее</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">Последняя</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
