@@ -4,6 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     """Пользователь с email-логином, верификацией и блокировкой."""
+
     email = models.EmailField(unique=True, verbose_name="Email")
     is_verified = models.BooleanField(default=False, verbose_name="Email подтверждён")
     is_blocked = models.BooleanField(default=False, verbose_name="Заблокирован")

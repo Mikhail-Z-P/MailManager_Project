@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, UpdateView
-from django.contrib.messages.views import SuccessMessageMixin
+
 from users.forms import UserRegisterForm, UserUpdateForm
 from users.models import User
 from users.tokens import email_verification_token
@@ -15,6 +16,7 @@ from users.tokens import email_verification_token
 
 class RegisterView(CreateView):
     """Регистрация нового пользователя с подтверждением email."""
+
     form_class = UserRegisterForm
     template_name = "users/register.html"
     success_url = reverse_lazy("users:login")
@@ -22,6 +24,7 @@ class RegisterView(CreateView):
 
 class UserLoginView(LoginView):
     """Вход в систему по email."""
+
     template_name = "users/login.html"
 
 
@@ -36,7 +39,7 @@ class EmailVerifyView(View):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        except TypeError, ValueError, OverflowError, User.DoesNotExist:
             user = None
         if user is not None and email_verification_token.check_token(user, token):
             user.is_verified = True
@@ -50,6 +53,7 @@ class EmailVerifyView(View):
 
 class ProfileView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     """Редактирование профиля пользователя."""
+
     model = User
     form_class = UserUpdateForm
     template_name = "users/profile.html"

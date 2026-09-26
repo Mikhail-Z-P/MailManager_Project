@@ -6,6 +6,7 @@ from django.utils import timezone
 
 class Client(models.Model):
     """Получатель рассылки с email, ФИО и комментарием."""
+
     email = models.EmailField(unique=True, verbose_name="Email")
     full_name = models.CharField(max_length=255, verbose_name="Ф. И. О.")
     comment = models.TextField(blank=True, verbose_name="Комментарий")
@@ -27,6 +28,7 @@ class Client(models.Model):
 
 class Message(models.Model):
     """Сообщение для рассылки: тема и тело письма."""
+
     subject = models.CharField(max_length=255, verbose_name="Тема письма")
     body = models.TextField(verbose_name="Тело письма")
     owner = models.ForeignKey(
@@ -47,6 +49,7 @@ class Message(models.Model):
 
 class Mailing(models.Model):
     """Рассылка с динамическим статусом и связями на сообщение и получателей."""
+
     STATUS_CREATED = "Создана"
     STATUS_RUNNING = "Запущена"
     STATUS_COMPLETED = "Завершена"
@@ -119,6 +122,7 @@ class Mailing(models.Model):
 
 class Attempt(models.Model):
     """Попытка отправки письма в рамках рассылки."""
+
     STATUS_SUCCESS = "Успешно"
     STATUS_FAILED = "Не успешно"
     STATUS_CHOICES = [
@@ -126,15 +130,11 @@ class Attempt(models.Model):
         (STATUS_FAILED, "Не успешно"),
     ]
 
-    attempt_time = models.DateTimeField(
-        auto_now_add=True, verbose_name="Время попытки"
-    )
+    attempt_time = models.DateTimeField(auto_now_add=True, verbose_name="Время попытки")
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, verbose_name="Статус"
     )
-    server_response = models.TextField(
-        blank=True, verbose_name="Ответ сервера"
-    )
+    server_response = models.TextField(blank=True, verbose_name="Ответ сервера")
     mailing = models.ForeignKey(
         Mailing,
         on_delete=models.CASCADE,

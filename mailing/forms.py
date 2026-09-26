@@ -34,12 +34,8 @@ class MailingForm(forms.ModelForm):
         model = Mailing
         fields = ["start_time", "end_time", "message", "recipients"]
         widgets = {
-            "start_time": forms.DateTimeInput(
-                attrs={"type": "datetime-local"}
-            ),
-            "end_time": forms.DateTimeInput(
-                attrs={"type": "datetime-local"}
-            ),
+            "start_time": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "end_time": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
 
     def clean_start_time(self):
@@ -55,7 +51,5 @@ class MailingForm(forms.ModelForm):
         start = cleaned.get("start_time")
         end = cleaned.get("end_time")
         if start and end and start >= end:
-            raise ValidationError(
-                "Дата окончания должна быть позже даты начала."
-            )
+            raise ValidationError("Дата окончания должна быть позже даты начала.")
         return cleaned

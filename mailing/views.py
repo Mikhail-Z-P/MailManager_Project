@@ -4,13 +4,8 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from mailing.forms import ClientForm, MailingForm, MessageForm
 from mailing.models import Attempt, Client, Mailing, Message
@@ -59,10 +54,9 @@ class HomeView(View):
         return render(request, "mailing/home.html", stats)
 
 
-# === Клиенты (Задание 1) ===
-
 class ClientListView(OwnerQuerySetMixin, ListView):
     """Список получателей рассылки."""
+
     model = Client
     template_name = "mailing/client_list.html"
     context_object_name = "clients"
@@ -70,6 +64,7 @@ class ClientListView(OwnerQuerySetMixin, ListView):
 
 class ClientDetailView(OwnerRequiredMixin, DetailView):
     """Детальный просмотр получателя."""
+
     model = Client
     template_name = "mailing/client_detail.html"
     context_object_name = "client"
@@ -77,6 +72,7 @@ class ClientDetailView(OwnerRequiredMixin, DetailView):
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
     """Создание нового получателя."""
+
     model = Client
     form_class = ClientForm
     template_name = "mailing/client_form.html"
@@ -89,6 +85,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
 
 class ClientUpdateView(OwnerRequiredMixin, UpdateView):
     """Редактирование получателя."""
+
     model = Client
     form_class = ClientForm
     template_name = "mailing/client_form.html"
@@ -97,22 +94,23 @@ class ClientUpdateView(OwnerRequiredMixin, UpdateView):
 
 class ClientDeleteView(OwnerRequiredMixin, DeleteView):
     """Удаление получателя."""
+
     model = Client
     template_name = "mailing/client_confirm_delete.html"
     success_url = reverse_lazy("mailing:client_list")
 
 
-# === Сообщения (Задание 2) ===
-
 class MessageListView(OwnerQuerySetMixin, ListView):
     """Список сообщений."""
+
     model = Message
     template_name = "mailing/message_list.html"
-    context_object_name = "messages"
+    context_object_name = "message_list"
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
     """Создание сообщения."""
+
     model = Message
     form_class = MessageForm
     template_name = "mailing/message_form.html"
@@ -125,6 +123,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
 class MessageUpdateView(OwnerRequiredMixin, UpdateView):
     """Редактирование сообщения."""
+
     model = Message
     form_class = MessageForm
     template_name = "mailing/message_form.html"
@@ -133,15 +132,15 @@ class MessageUpdateView(OwnerRequiredMixin, UpdateView):
 
 class MessageDeleteView(OwnerRequiredMixin, DeleteView):
     """Удаление сообщения."""
+
     model = Message
     template_name = "mailing/message_confirm_delete.html"
     success_url = reverse_lazy("mailing:message_list")
 
 
-# === Рассылки (Задание 3, 4) ===
-
 class MailingListView(OwnerQuerySetMixin, ListView):
     """Список рассылок с динамическим обновлением статусов."""
+
     model = Mailing
     template_name = "mailing/mailing_list.html"
     context_object_name = "mailings"
@@ -155,6 +154,7 @@ class MailingListView(OwnerQuerySetMixin, ListView):
 
 class MailingDetailView(OwnerRequiredMixin, DetailView):
     """Детальный просмотр рассылки с пересчётом статуса и попытками."""
+
     model = Mailing
     template_name = "mailing/mailing_detail.html"
     context_object_name = "mailing"
@@ -173,6 +173,7 @@ class MailingDetailView(OwnerRequiredMixin, DetailView):
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
     """Создание рассылки."""
+
     model = Mailing
     form_class = MailingForm
     template_name = "mailing/mailing_form.html"
@@ -190,6 +191,7 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
 
 class MailingUpdateView(OwnerRequiredMixin, UpdateView):
     """Редактирование рассылки."""
+
     model = Mailing
     form_class = MailingForm
     template_name = "mailing/mailing_form.html"
@@ -203,16 +205,22 @@ class MailingUpdateView(OwnerRequiredMixin, UpdateView):
 
 class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     """Удаление рассылки."""
+
     model = Mailing
     template_name = "mailing/mailing_confirm_delete.html"
     success_url = reverse_lazy("mailing:mailing_list")
 
 
-class MailingSendView(OwnerRequiredMixin, View):
+class MailingSendView(LoginRequiredMixin, View):
     """Ручной запуск рассылки по требованию."""
 
     def post(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
+        user = request.user
+        is_manager = user.groups.filter(name="Managers").exists()
+        if not is_manager and mailing.owner != user:
+            messages.error(request, "Нет прав на отправку этой рассылки.")
+            return redirect("mailing:mailing_detail", pk=pk)
         success, msg = send_mailing(mailing)
         if success:
             messages.success(request, msg)
@@ -221,10 +229,9 @@ class MailingSendView(OwnerRequiredMixin, View):
         return redirect("mailing:mailing_detail", pk=pk)
 
 
-# === Попытки (Задание 5) ===
-
 class AttemptListView(LoginRequiredMixin, ListView):
     """Список попыток отправки с фильтром по пользователю."""
+
     model = Attempt
     template_name = "mailing/attempt_list.html"
     context_object_name = "attempts"
@@ -237,8 +244,6 @@ class AttemptListView(LoginRequiredMixin, ListView):
             qs = qs.filter(mailing__owner=user)
         return qs
 
-
-# === Статистика (Задание 8) ===
 
 class StatisticsView(LoginRequiredMixin, View):
     """Страница со статистикой попыток (кешируется)."""
@@ -253,19 +258,13 @@ class StatisticsView(LoginRequiredMixin, View):
             else:
                 attempts = Attempt.objects.filter(mailing__owner=user)
             stats = {
-                "total_success": attempts.filter(
-                    status=Attempt.STATUS_SUCCESS
-                ).count(),
-                "total_failed": attempts.filter(
-                    status=Attempt.STATUS_FAILED
-                ).count(),
+                "total_success": attempts.filter(status=Attempt.STATUS_SUCCESS).count(),
+                "total_failed": attempts.filter(status=Attempt.STATUS_FAILED).count(),
                 "total_sent": attempts.count(),
             }
             cache.set(cache_key, stats, timeout=60)
         return render(request, "mailing/statistics.html", stats)
 
-
-# === Менеджер: отключение рассылок (Задание 9) ===
 
 class MailingToggleView(LoginRequiredMixin, UserPassesTestMixin, View):
     """Отключение/включение рассылки менеджером."""

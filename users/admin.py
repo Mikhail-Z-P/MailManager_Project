@@ -7,6 +7,7 @@ from users.models import User
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     """Админка пользователя с действиями блокировки."""
+
     list_display = ("email", "username", "is_verified", "is_blocked", "is_active")
     list_filter = ("is_verified", "is_blocked", "is_active")
     actions = ["block_users", "unblock_users"]
