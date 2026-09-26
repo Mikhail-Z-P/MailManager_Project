@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Сервис рассылок{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">Рассылки</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'mailing:mailing_list' %}">Рассылки</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'mailing:client_list' %}">Клиенты</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'mailing:attempt_list' %}">Попытки</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'mailing:statistics' %}">Статистика</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'users:profile' %}">{{ user.email }}</a></li>
+                    <li class="nav-item">
+                        <form action="{% url 'users:logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link" style="padding: 0; border: none; background: transparent; cursor: pointer;">Выйти</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Войти</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'users:register' %}">Регистрация</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
